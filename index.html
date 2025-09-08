@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8" />
+  <title>شخصيتك التفاعلية</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/examples/js/loaders/GLTFLoader.js"></script>
+</head>
+<body>
+  <div id="controls">
+    <select id="backgroundSelector">
+      <option value="space">🌌 الفضاء</option>
+      <option value="nature">🏞️ طبيعة</option>
+      <option value="city">🌇 مدينة</option>
+      <option value="hall">🏛️ قاعة تاريخية</option>
+    </select>
+    <input type="text" id="userInput" placeholder="اكتب أو تكلّم مع الشخصية..." />
+    <button onclick="sendMessage()">إرسال</button>
+    <button onclick="startListening()">🎤 تحدث</button>
+  </div>
+  <canvas id="scene"></canvas>
+  <script src="app.js"></script>
+</body>
+</html>
