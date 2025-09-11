@@ -1,22 +1,19 @@
 body {
   margin: 0;
-  font-family: "Tahoma", sans-serif;
+  font-family: Arial, sans-serif;
+  text-align: center;
   background: #111;
   color: #fff;
-  overflow: hidden;
 }
 
-#controls {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  background: rgba(0,0,0,0.6);
-  padding: 10px;
-  border-radius: 12px;
+h1 {
+  margin: 20px;
 }
 
-#scene {
-  width: 100vw;
-  height: 100vh;
-  display: block;
+canvas {
+  width: 80%;
+  height: 500px;
+  background: #222;
+  border: 2px solid #fff;
+  margin-top: 20px;
 }
