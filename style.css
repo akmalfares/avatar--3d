@@ -1,19 +1,10 @@
 body {
-  margin: 0;
   font-family: Arial, sans-serif;
+  background: #f4f4f9;
   text-align: center;
-  background: #111;
-  color: #fff;
+  padding: 50px;
 }
 
 h1 {
-  margin: 20px;
-}
-
-canvas {
-  width: 80%;
-  height: 500px;
-  background: #222;
-  border: 2px solid #fff;
-  margin-top: 20px;
+  color: #2b7a78;
 }
