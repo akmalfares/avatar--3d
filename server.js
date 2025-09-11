@@ -1,33 +1,19 @@
-import express from "express";
-import fetch from "node-fetch";
-import dotenv from "dotenv";
+const express = require("express");
+const path = require("path");
 
-dotenv.config();
 const app = express();
-app.use(express.json());
-app.use(express.static("public"));
 
-app.post("/api/chat", async (req, res) => {
-  try {
-    const reply = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${process.env.OPENAI_KEY}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        model: "gpt-4o-mini",
-        messages: [{ role: "user", content: req.body.message }]
-      })
-    });
-    const data = await reply.json();
-    res.json({ reply: data.choices[0].message.content });
-  } catch (err) {
-    res.status(500).json({ error: "API error", details: err });
-  }
+// ملفات الاستاتيك (frontend)
+app.use(express.static(path.join(__dirname, "public"))); 
+// لاحظ: لو ملفات html/css/js عندك في نفس المسار، سيبها "public"
+// أو غيّر "public" لأي فولدر انت حاطط فيه index.html
+
+// صفحة البداية
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
-app.listen(3000, () => console.log("✅ Server running at http://localhost:3000"));
+// تشغيل السيرفر على البورت اللي يحدده Render أو 3000 لو محلي
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`✅ Server running on port ${PORT}`);
