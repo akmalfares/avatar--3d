@@ -8,41 +8,57 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
     <meta name="description" content="موقع تفاعلي شامل للكنيسة القبطية الأرثوذكسية يضم الزيارات الافتراضية، المكتبة الرقمية، نظام الأسئلة والأجوبة، وميزة تحويل الصور إلى Avatar">
-    <meta name="keywords" content="الكنيسة القبطية، أرثوذكسية، زيارة افتراضية، مكتبة رقمية، أسئلة وأجوبة، avatar">
 </head>
 <body>
-    <!-- Header -->
-    <header class="header">
-        <nav class="navbar">
-            <div class="nav-container">
-                <div class="nav-logo">
-                    <i class="fas fa-cross"></i>
-                    <span>الكنيسة القبطية الأرثوذكسية</span>
-                </div>
-                <ul class="nav-menu">
-                    <li><a href="#home" class="nav-link active" onclick="showSection('home')">الرئيسية</a></li>
-                    <li><a href="#virtual-tours" class="nav-link" onclick="showSection('virtual-tours')">الزيارات الافتراضية</a></li>
-                    <li><a href="#library" class="nav-link" onclick="showSection('library')">المكتبة الرقمية</a></li>
-                    <li><a href="#qa" class="nav-link" onclick="showSection('qa')">أسئلة وأجوبة</a></li>
-                    <li><a href="#avatar" class="nav-link" onclick="showSection('avatar')">إنشاء Avatar</a></li>
-                    <li><a href="#chat" class="nav-link" onclick="showSection('chat')">المحادثات</a></li>
-                    <li><a href="#games" class="nav-link" onclick="showSection('games')">الألعاب التفاعلية</a></li>
-                </ul>
-                <div class="hamburger" onclick="toggleMobileMenu()">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </div>
-            </div>
-        </nav>
-    </header>
+    <!-- Top Navigation Bar -->
+    <nav class="top-nav">
+        <div class="nav-buttons">
+            <button class="nav-btn games-btn" onclick="showSection('games')">
+                <i class="fas fa-gamepad"></i>
+                ألعاب التفاعل
+            </button>
+            <button class="nav-btn tests-btn" onclick="showSection('tests')">
+                <i class="fas fa-question-circle"></i>
+                اختبارات
+            </button>
+            <button class="nav-btn avatar-btn" onclick="showSection('avatar')">
+                <i class="fas fa-user-circle"></i>
+                Avatar
+            </button>
+            <button class="nav-btn schedule-btn" onclick="showSection('schedule')">
+                <i class="fas fa-calendar"></i>
+                مواعيد
+            </button>
+            <button class="nav-btn church-btn" onclick="showSection('church-today')">
+                <i class="fas fa-church"></i>
+                كنيسة اليوم
+            </button>
+            <button class="nav-btn faith-btn" onclick="showSection('faith-tests')">
+                <i class="fas fa-cross"></i>
+                الاختبارات الإيمانية
+            </button>
+            <button class="nav-btn biography-btn" onclick="showSection('biographies')">
+                <i class="fas fa-book"></i>
+                السير
+            </button>
+        </div>
+        <div class="church-title">
+            <i class="fas fa-cross"></i>
+            الكنيسة القبطية الأرثوذكسية
+        </div>
+    </nav>
 
-    <!-- Hero Section -->
-    <section id="home" class="hero section active">
+    <!-- Main Hero Section -->
+    <section id="home" class="hero-section active">
         <div class="hero-content">
-            <h1 class="hero-title">مرحباً بكم في الكنيسة القبطية الأرثوذكسية</h1>
-            <p class="hero-subtitle">استكشف تاريخنا العريق وتراثنا الروحي من خلال تجربة تفاعلية فريدة ومتكاملة</p>
-            <div class="hero-stats">
+            <h1 class="main-title">مرحباً بكم في الكنيسة</h1>
+            <h2 class="sub-title">القبطية الأرثوذكسية</h2>
+            <p class="hero-description">
+                استكشف تاريخنا العريق وتراثنا الروحي من خلال تجربة تفاعلية فريدة ومتكاملة
+            </p>
+            
+            <!-- Statistics -->
+            <div class="stats-container">
                 <div class="stat-item">
                     <i class="fas fa-church"></i>
                     <span class="stat-number">3</span>
@@ -64,35 +80,37 @@
                     <span class="stat-label">لعبة تفاعلية</span>
                 </div>
             </div>
-            <div class="hero-buttons">
-                <button class="btn btn-primary" onclick="showSection('virtual-tours')">
-                    <i class="fas fa-vr-cardboard"></i>
-                    ابدأ الزيارة الافتراضية
-                </button>
-                <button class="btn btn-secondary" onclick="showSection('avatar')">
-                    <i class="fas fa-user-circle"></i>
-                    إنشاء Avatar
-                </button>
-                <button class="btn btn-outline" onclick="showSection('library')">
+
+            <!-- Main Action Buttons -->
+            <div class="action-buttons">
+                <button class="main-btn library-btn" onclick="showSection('library')">
                     <i class="fas fa-book-open"></i>
                     تصفح المكتبة
                 </button>
+                <button class="main-btn avatar-main-btn" onclick="showSection('avatar')">
+                    <i class="fas fa-user-astronaut"></i>
+                    إنشاء Avatar
+                </button>
+                <button class="main-btn tour-btn" onclick="showSection('virtual-tours')">
+                    <i class="fas fa-vr-cardboard"></i>
+                    ابدأ الزيارة الافتراضية
+                </button>
             </div>
         </div>
-        <div class="hero-background">
-            <div class="floating-icons">
-                <i class="fas fa-cross"></i>
-                <i class="fas fa-church"></i>
-                <i class="fas fa-dove"></i>
-                <i class="fas fa-book-open"></i>
-                <i class="fas fa-praying-hands"></i>
-                <i class="fas fa-star-of-david"></i>
-            </div>
+
+        <!-- Floating Background Icons -->
+        <div class="floating-icons">
+            <i class="fas fa-cross"></i>
+            <i class="fas fa-church"></i>
+            <i class="fas fa-dove"></i>
+            <i class="fas fa-book-open"></i>
+            <i class="fas fa-praying-hands"></i>
+            <i class="fas fa-star-of-david"></i>
         </div>
     </section>
 
     <!-- Virtual Tours Section -->
-    <section id="virtual-tours" class="virtual-tours section">
+    <section id="virtual-tours" class="section">
         <div class="container">
             <h2 class="section-title">الزيارات الافتراضية</h2>
             <p class="section-subtitle">اكتشف أهم الكنائس والأديرة القبطية من خلال جولات افتراضية تفاعلية بتقنية 360°</p>
@@ -195,26 +213,8 @@
         </div>
     </section>
 
-    <!-- Digital Library Section -->
-    <section id="library" class="library-section section">
-        <div class="container">
-            <div id="libraryContainer">
-                <!-- سيتم ملؤها بواسطة digital-library.js -->
-            </div>
-        </div>
-    </section>
-
-    <!-- Q&A Section -->
-    <section id="qa" class="qa-section section">
-        <div class="container">
-            <div id="qaContainer">
-                <!-- سيتم ملؤها بواسطة qa-system.js -->
-            </div>
-        </div>
-    </section>
-
     <!-- Avatar Creation Section -->
-    <section id="avatar" class="avatar-section section">
+    <section id="avatar" class="section avatar-section">
         <div class="container">
             <h2 class="section-title">إنشاء Avatar شخصي</h2>
             <p class="section-subtitle">حول صورتك الشخصية إلى شخصية ثلاثية الأبعاد تفاعلية باستخدام تقنيات الذكاء الاصطناعي</p>
@@ -278,100 +278,26 @@
         </div>
     </section>
 
-    <!-- Chat Section -->
-    <section id="chat" class="chat-section section">
+    <!-- Digital Library Section -->
+    <section id="library" class="section">
         <div class="container">
-            <h2 class="section-title">المحادثات التفاعلية</h2>
-            <p class="section-subtitle">تفاعل مع المجتمع، اطرح أسئلتك، وشارك في النقاشات الروحية</p>
-            
-            <div class="chat-container">
-                <div class="chat-sidebar">
-                    <div class="user-profile">
-                        <div class="user-avatar">
-                            <i class="fas fa-user-circle"></i>
-                        </div>
-                        <div class="user-info">
-                            <h4>زائر</h4>
-                            <span class="user-status online">متصل</span>
-                        </div>
-                    </div>
-                    
-                    <div class="chat-rooms">
-                        <h3>غرف المحادثة</h3>
-                        <div class="room-list">
-                            <div class="room-item active" data-room="general">
-                                <i class="fas fa-comments"></i>
-                                <div class="room-info">
-                                    <span class="room-name">المحادثة العامة</span>
-                                    <span class="room-desc">نقاشات عامة</span>
-                                </div>
-                                <span class="online-count">24</span>
-                            </div>
-                            <div class="room-item" data-room="questions">
-                                <i class="fas fa-question-circle"></i>
-                                <div class="room-info">
-                                    <span class="room-name">الأسئلة والاستفسارات</span>
-                                    <span class="room-desc">اطرح أسئلتك</span>
-                                </div>
-                                <span class="online-count">12</span>
-                            </div>
-                            <div class="room-item" data-room="prayers">
-                                <i class="fas fa-praying-hands"></i>
-                                <div class="room-info">
-                                    <span class="room-name">طلبات الصلاة</span>
-                                    <span class="room-desc">صلوا من أجلنا</span>
-                                </div>
-                                <span class="online-count">8</span>
-                            </div>
-                            <div class="room-item" data-room="youth">
-                                <i class="fas fa-users"></i>
-                                <div class="room-info">
-                                    <span class="room-name">خدمة الشباب</span>
-                                    <span class="room-desc">نقاشات الشباب</span>
-                                </div>
-                                <span class="online-count">15</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="chat-main">
-                    <div class="chat-header">
-                        <div class="room-info">
-                            <h3>المحادثة العامة</h3>
-                            <span class="online-status">24 متصل الآن</span>
-                        </div>
-                        <div class="chat-actions">
-                            <button class="btn-icon" title="إعدادات">
-                                <i class="fas fa-cog"></i>
-                            </button>
-                            <button class="btn-icon" title="معلومات الغرفة">
-                                <i class="fas fa-info-circle"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="chat-messages" id="chatMessages">
-                        <!-- سيتم ملؤها بواسطة chat-system.js -->
-                    </div>
-                    <div class="chat-input">
-                        <button class="btn-icon" id="emojiBtn" title="إيموجي">
-                            <i class="fas fa-smile"></i>
-                        </button>
-                        <input type="text" id="messageInput" placeholder="اكتب رسالتك هنا...">
-                        <button class="btn-icon" id="attachBtn" title="إرفاق ملف">
-                            <i class="fas fa-paperclip"></i>
-                        </button>
-                        <button class="send-btn" id="sendBtn">
-                            <i class="fas fa-paper-plane"></i>
-                        </button>
-                    </div>
-                </div>
+            <div id="libraryContainer">
+                <!-- سيتم ملؤها بواسطة digital-library.js -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Q&A Section -->
+    <section id="tests" class="section">
+        <div class="container">
+            <div id="qaContainer">
+                <!-- سيتم ملؤها بواسطة qa-system.js -->
             </div>
         </div>
     </section>
 
     <!-- Games Section -->
-    <section id="games" class="games-section section">
+    <section id="games" class="section">
         <div class="container">
             <h2 class="section-title">الألعاب التفاعلية</h2>
             <p class="section-subtitle">تعلم تاريخ الكنيسة وتراثها من خلال ألعاب تفاعلية ممتعة ومفيدة</p>
@@ -414,6 +340,65 @@
         </div>
     </section>
 
+    <!-- Other Sections (Schedule, Church Today, Faith Tests, Biographies) -->
+    <section id="schedule" class="section">
+        <div class="container">
+            <h2 class="section-title">مواعيد الكنيسة</h2>
+            <p class="section-subtitle">مواعيد القداسات والأنشطة الكنسية</p>
+            <div class="schedule-content">
+                <div class="schedule-item">
+                    <h3>القداس الإلهي</h3>
+                    <p>كل يوم أحد - 9:00 صباحاً</p>
+                </div>
+                <div class="schedule-item">
+                    <h3>اجتماع الشباب</h3>
+                    <p>كل يوم جمعة - 7:00 مساءً</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="church-today" class="section">
+        <div class="container">
+            <h2 class="section-title">الكنيسة اليوم</h2>
+            <p class="section-subtitle">أخبار وأحداث الكنيسة القبطية الأرثوذكسية</p>
+            <div class="news-content">
+                <div class="news-item">
+                    <h3>احتفالات عيد الميلاد المجيد</h3>
+                    <p>تستعد الكنيسة للاحتفال بعيد الميلاد المجيد</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="faith-tests" class="section">
+        <div class="container">
+            <h2 class="section-title">الاختبارات الإيمانية</h2>
+            <p class="section-subtitle">اختبر معرفتك بالتعاليم الأرثوذكسية</p>
+            <div class="tests-grid">
+                <div class="test-card">
+                    <h3>اختبار العقيدة الأرثوذكسية</h3>
+                    <p>10 أسئلة حول الإيمان الأرثوذكسي</p>
+                    <button class="btn btn-primary">ابدأ الاختبار</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="biographies" class="section">
+        <div class="container">
+            <h2 class="section-title">سير القديسين</h2>
+            <p class="section-subtitle">تعرف على حياة وتعاليم القديسين الأقباط</p>
+            <div class="saints-grid">
+                <div class="saint-card">
+                    <h3>القديس الأنبا أنطونيوس</h3>
+                    <p>أب الرهبان وأول الناسكين</p>
+                    <button class="btn btn-primary">اقرأ السيرة</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Virtual Tour Modal -->
     <div id="tourModal" class="modal">
         <div class="modal-content tour-modal-content">
@@ -437,19 +422,6 @@
                         <i class="fas fa-spinner fa-spin"></i>
                         <p>جاري تحميل الزيارة الافتراضية...</p>
                     </div>
-                </div>
-                <div class="tour-navigation">
-                    <button class="nav-btn" id="prevBtn">
-                        <i class="fas fa-chevron-right"></i>
-                        السابق
-                    </button>
-                    <div class="tour-progress">
-                        <span id="currentStep">1</span> / <span id="totalSteps">5</span>
-                    </div>
-                    <button class="nav-btn" id="nextBtn">
-                        التالي
-                        <i class="fas fa-chevron-left"></i>
-                    </button>
                 </div>
             </div>
         </div>
@@ -505,55 +477,28 @@
             <div class="footer-content">
                 <div class="footer-section">
                     <h3>الكنيسة القبطية الأرثوذكسية</h3>
-                    <p>موقع تفاعلي شامل للتراث والثقافة القبطية الأرثوذكسية، يجمع بين التقنيات الحديثة والمحتوى الروحي الأصيل</p>
-                    <div class="footer-stats">
-                        <span><i class="fas fa-users"></i> 1000+ زائر يومياً</span>
-                        <span><i class="fas fa-download"></i> 5000+ تحميل</span>
-                    </div>
+                    <p>موقع تفاعلي شامل للتراث والثقافة القبطية الأرثوذكسية</p>
                 </div>
                 <div class="footer-section">
-                    <h4>الأقسام الرئيسية</h4>
+                    <h4>روابط سريعة</h4>
                     <ul>
                         <li><a href="#virtual-tours">الزيارات الافتراضية</a></li>
-                        <li><a href="#library">المكتبة الرقمية</a></li>
-                        <li><a href="#qa">أسئلة وأجوبة</a></li>
-                        <li><a href="#chat">المحادثات</a></li>
-                        <li><a href="#games">الألعاب التفاعلية</a></li>
+                        <li><a href="#library">المكتبة</a></li>
+                        <li><a href="#games">الألعاب</a></li>
                         <li><a href="#avatar">إنشاء Avatar</a></li>
-                    </ul>
-                </div>
-                <div class="footer-section">
-                    <h4>الميزات التقنية</h4>
-                    <ul>
-                        <li><i class="fas fa-mobile-alt"></i> متوافق مع الجوال</li>
-                        <li><i class="fas fa-universal-access"></i> سهولة الوصول</li>
-                        <li><i class="fas fa-language"></i> دعم اللغة العربية</li>
-                        <li><i class="fas fa-cloud"></i> حفظ سحابي</li>
                     </ul>
                 </div>
                 <div class="footer-section">
                     <h4>تواصل معنا</h4>
                     <div class="social-links">
-                        <a href="#" title="فيسبوك"><i class="fab fa-facebook"></i></a>
-                        <a href="#" title="يوتيوب"><i class="fab fa-youtube"></i></a>
-                        <a href="#" title="إنستغرام"><i class="fab fa-instagram"></i></a>
-                        <a href="#" title="تويتر"><i class="fab fa-twitter"></i></a>
-                    </div>
-                    <div class="contact-info">
-                        <p><i class="fas fa-envelope"></i> info@coptic-church.org</p>
-                        <p><i class="fas fa-globe"></i> www.coptic-church.org</p>
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
                     </div>
                 </div>
             </div>
             <div class="footer-bottom">
-                <div class="footer-bottom-content">
-                    <p>&copy; 2025 الكنيسة القبطية الأرثوذكسية. جميع الحقوق محفوظة.</p>
-                    <div class="footer-links">
-                        <a href="#">سياسة الخصوصية</a>
-                        <a href="#">شروط الاستخدام</a>
-                        <a href="#">اتصل بنا</a>
-                    </div>
-                </div>
+                <p>&copy; 2025 الكنيسة القبطية الأرثوذكسية. جميع الحقوق محفوظة.</p>
             </div>
         </div>
     </footer>
@@ -563,47 +508,5 @@
     <script src="chat-system.js"></script>
     <script src="digital-library.js"></script>
     <script src="qa-system.js"></script>
-    
-    <!-- Animations CSS -->
-    <style>
-        @keyframes slideInRight {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-        
-        @keyframes slideOutRight {
-            from { transform: translateX(0); opacity: 1; }
-            to { transform: translateX(100%); opacity: 0; }
-        }
-        
-        @keyframes fadeInUp {
-            from { transform: translateY(30px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-        
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-        
-        .section {
-            display: none;
-            animation: fadeInUp 0.6s ease-out;
-        }
-        
-        .section.active {
-            display: block;
-        }
-        
-        .floating-icons i {
-            animation: pulse 3s infinite;
-        }
-        
-        .floating-icons i:nth-child(2) { animation-delay: 0.5s; }
-        .floating-icons i:nth-child(3) { animation-delay: 1s; }
-        .floating-icons i:nth-child(4) { animation-delay: 1.5s; }
-        .floating-icons i:nth-child(5) { animation-delay: 2s; }
-        .floating-icons i:nth-child(6) { animation-delay: 2.5s; }
-    </style>
 </body>
 </html>

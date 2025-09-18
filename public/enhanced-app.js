@@ -1,867 +1,1153 @@
-// Enhanced Coptic Orthodox Website - Main Application
-class CopticWebsiteApp {
-    constructor() {
-        this.currentSection = 'home';
-        this.isLoading = false;
-        this.userPreferences = this.loadUserPreferences();
-        this.initializeApp();
+// الكنيسة القبطية الأرثوذكسية - JavaScript المحدث والمدمج
+
+// متغيرات عامة
+let currentSection = 'home';
+let currentCamera = 'user';
+let cameraStream = null;
+let uploadedImage = null;
+let avatarData = null;
+
+// تهيئة التطبيق عند تحميل الصفحة
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('✅ تم تحميل الموقع بنجاح!');
+    
+    // تهيئة الأقسام
+    initializeSections();
+    
+    // تهيئة نظام Avatar
+    initializeAvatarSystem();
+    
+    // تهيئة الزيارات الافتراضية
+    initializeVirtualTours();
+    
+    // تهيئة الألعاب
+    initializeGames();
+    
+    // تهيئة المكتبة الرقمية
+    if (typeof initializeDigitalLibrary === 'function') {
+        initializeDigitalLibrary();
     }
-
-    initializeApp() {
-        this.setupEventListeners();
-        this.initializeNavigation();
-        this.initializeVirtualTours();
-        this.initializeAvatarSystem();
-        this.initializeGames();
-        this.setupResponsiveDesign();
-        this.loadUserData();
-        
-        // Initialize subsystems
-        if (typeof CopticChatSystem !== 'undefined') {
-            window.copticChat = new CopticChatSystem();
-        }
-        
-        console.log('🏛️ موقع الكنيسة القبطية الأرثوذكسية جاهز!');
+    
+    // تهيئة نظام الأسئلة والأجوبة
+    if (typeof initializeQASystem === 'function') {
+        initializeQASystem();
     }
+    
+    // إضافة مستمعي الأحداث
+    addEventListeners();
+    
+    // عرض رسالة ترحيب
+    showWelcomeMessage();
+});
 
-    setupEventListeners() {
-        // Navigation
-        document.addEventListener('DOMContentLoaded', () => {
-            this.showSection('home');
-        });
-
-        // Mobile menu toggle
-        const hamburger = document.querySelector('.hamburger');
-        if (hamburger) {
-            hamburger.addEventListener('click', () => this.toggleMobileMenu());
-        }
-
-        // Smooth scrolling for anchor links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', (e) => {
-                e.preventDefault();
-                const target = document.querySelector(anchor.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({ behavior: 'smooth' });
-                }
-            });
-        });
-
-        // Keyboard navigation
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                this.closeAllModals();
-            }
-        });
-
-        // Window resize handler
-        window.addEventListener('resize', () => {
-            this.handleResize();
-        });
-    }
-
-    initializeNavigation() {
-        const navLinks = document.querySelectorAll('.nav-link');
-        navLinks.forEach(link => {
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                const section = link.getAttribute('href').substring(1);
-                this.showSection(section);
-                this.updateActiveNavLink(link);
-            });
-        });
-    }
-
-    showSection(sectionId) {
-        // Hide all sections
-        document.querySelectorAll('.section').forEach(section => {
+// تهيئة الأقسام
+function initializeSections() {
+    // إخفاء جميع الأقسام عدا الرئيسية
+    const sections = document.querySelectorAll('.section');
+    sections.forEach(section => {
+        if (section.id !== 'home') {
             section.classList.remove('active');
-        });
-
-        // Show target section
-        const targetSection = document.getElementById(sectionId);
-        if (targetSection) {
-            targetSection.classList.add('active');
-            this.currentSection = sectionId;
-            
-            // Update URL without page reload
-            history.pushState({ section: sectionId }, '', `#${sectionId}`);
-            
-            // Initialize section-specific functionality
-            this.initializeSectionContent(sectionId);
-            
-            // Update page title
-            this.updatePageTitle(sectionId);
         }
+    });
+    
+    // تفعيل القسم الرئيسي
+    const homeSection = document.getElementById('home');
+    if (homeSection) {
+        homeSection.classList.add('active');
     }
+}
 
-    updateActiveNavLink(activeLink) {
-        document.querySelectorAll('.nav-link').forEach(link => {
-            link.classList.remove('active');
-        });
-        activeLink.classList.add('active');
-    }
-
-    updatePageTitle(sectionId) {
-        const titles = {
-            'home': 'الكنيسة القبطية الأرثوذكسية - الرئيسية',
-            'virtual-tours': 'الزيارات الافتراضية - الكنيسة القبطية',
-            'library': 'المكتبة الرقمية - الكنيسة القبطية',
-            'qa': 'أسئلة وأجوبة - الكنيسة القبطية',
-            'avatar': 'إنشاء Avatar - الكنيسة القبطية',
-            'chat': 'المحادثات - الكنيسة القبطية',
-            'games': 'الألعاب التفاعلية - الكنيسة القبطية'
-        };
+// عرض قسم معين
+function showSection(sectionId) {
+    console.log(`🔄 التنقل إلى قسم: ${sectionId}`);
+    
+    // إخفاء جميع الأقسام
+    const sections = document.querySelectorAll('.section');
+    sections.forEach(section => {
+        section.classList.remove('active');
+    });
+    
+    // عرض القسم المطلوب
+    const targetSection = document.getElementById(sectionId);
+    if (targetSection) {
+        targetSection.classList.add('active');
+        currentSection = sectionId;
         
-        document.title = titles[sectionId] || 'الكنيسة القبطية الأرثوذكسية';
+        // تحديث عنوان الصفحة
+        updatePageTitle(sectionId);
+        
+        // تنفيذ إجراءات خاصة بكل قسم
+        handleSectionSpecificActions(sectionId);
+    } else {
+        console.error(`❌ لم يتم العثور على القسم: ${sectionId}`);
+        showNotification('عذراً، هذا القسم غير متاح حالياً', 'error');
     }
+}
 
-    initializeSectionContent(sectionId) {
-        switch (sectionId) {
-            case 'library':
-                if (window.copticLibrary) {
-                    window.copticLibrary.renderLibraryInterface();
-                }
-                break;
-            case 'qa':
-                if (window.copticQA) {
-                    window.copticQA.renderQAInterface();
-                }
-                break;
-            case 'chat':
-                if (window.copticChat) {
-                    window.copticChat.renderChatInterface();
-                }
-                break;
-            case 'games':
-                this.initializeGamesSection();
-                break;
-            case 'avatar':
-                this.initializeAvatarSection();
-                break;
-            case 'virtual-tours':
-                this.initializeVirtualToursSection();
-                break;
-        }
-    }
+// تحديث عنوان الصفحة
+function updatePageTitle(sectionId) {
+    const titles = {
+        'home': 'الكنيسة القبطية الأرثوذكسية - الصفحة الرئيسية',
+        'virtual-tours': 'الزيارات الافتراضية',
+        'avatar': 'إنشاء Avatar',
+        'library': 'المكتبة الرقمية',
+        'tests': 'الأسئلة والأجوبة',
+        'games': 'الألعاب التفاعلية',
+        'schedule': 'مواعيد الكنيسة',
+        'church-today': 'الكنيسة اليوم',
+        'faith-tests': 'الاختبارات الإيمانية',
+        'biographies': 'سير القديسين'
+    };
+    
+    document.title = titles[sectionId] || 'الكنيسة القبطية الأرثوذكسية';
+}
 
-    // Virtual Tours System
-    initializeVirtualTours() {
-        this.virtualTours = {
-            'hanging-church': {
-                title: 'كنيسة السيدة العذراء المعلقة',
-                description: 'أقدم كنيسة معلقة في مصر القديمة',
-                url: 'https://www.360cities.net/image/hanging-church-3-cairo',
-                type: '360cities',
-                duration: '15-20 دقيقة',
-                highlights: [
-                    'الهيكل الرئيسي والمذبح',
-                    'الأيقونات التاريخية',
-                    'المنبر الرخامي',
-                    'الأعمدة الأثرية'
-                ]
-            },
-            'st-anthony': {
-                title: 'دير الأنبا أنطونيوس',
-                description: 'أقدم دير في العالم - أبو الرهبان',
-                url: 'https://stantony.net/virtual-tour/',
-                type: 'custom',
-                duration: '25-30 دقيقة',
-                highlights: [
-                    'كنيسة الأنبا أنطونيوس',
-                    'مغارة القديس',
-                    'المتحف الأثري',
-                    'حديقة الدير'
-                ]
-            },
-            'abu-serga': {
-                title: 'كنيسة أبو سرجة',
-                description: 'مكان إقامة العائلة المقدسة',
-                url: '#',
-                type: 'images',
-                duration: '10-15 دقيقة',
-                highlights: [
-                    'المغارة المقدسة',
-                    'بئر العائلة المقدسة',
-                    'الكنيسة العلوية',
-                    'الأيقونات النادرة'
-                ]
+// تنفيذ إجراءات خاصة بكل قسم
+function handleSectionSpecificActions(sectionId) {
+    switch(sectionId) {
+        case 'avatar':
+            resetAvatarSystem();
+            break;
+        case 'games':
+            loadGames('all');
+            break;
+        case 'library':
+            if (typeof loadLibraryContent === 'function') {
+                loadLibraryContent();
             }
-        };
+            break;
+        case 'tests':
+            if (typeof loadQAContent === 'function') {
+                loadQAContent();
+            }
+            break;
     }
+}
 
-    openVirtualTour(tourId) {
-        const tour = this.virtualTours[tourId];
-        if (!tour) return;
+// تهيئة نظام Avatar
+function initializeAvatarSystem() {
+    console.log('🤖 تهيئة نظام Avatar...');
+    
+    // عناصر رفع الصور
+    const uploadArea = document.getElementById('uploadArea');
+    const imageInput = document.getElementById('imageInput');
+    const cameraBtn = document.getElementById('cameraBtn');
+    const generateBtn = document.getElementById('generateAvatar');
+    const customizeBtn = document.getElementById('customizeAvatar');
+    const downloadBtn = document.getElementById('downloadAvatar');
+    
+    if (!uploadArea || !imageInput) {
+        console.error('❌ عناصر Avatar غير موجودة');
+        return;
+    }
+    
+    // إعداد منطقة رفع الصور
+    setupImageUpload(uploadArea, imageInput);
+    
+    // إعداد الكاميرا
+    if (cameraBtn) {
+        cameraBtn.addEventListener('click', openCameraModal);
+    }
+    
+    // إعداد أزرار التحكم
+    if (generateBtn) {
+        generateBtn.addEventListener('click', generateAvatar);
+    }
+    
+    if (customizeBtn) {
+        customizeBtn.addEventListener('click', customizeAvatar);
+    }
+    
+    if (downloadBtn) {
+        downloadBtn.addEventListener('click', downloadAvatar);
+    }
+}
 
-        const modal = document.getElementById('tourModal');
-        const title = document.getElementById('tourTitle');
-        const viewer = document.getElementById('tourViewer');
+// إعداد رفع الصور
+function setupImageUpload(uploadArea, imageInput) {
+    // النقر لاختيار الصورة
+    uploadArea.addEventListener('click', () => {
+        imageInput.click();
+    });
+    
+    // تغيير الصورة
+    imageInput.addEventListener('change', handleImageSelect);
+    
+    // السحب والإفلات
+    uploadArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadArea.classList.add('drag-over');
+    });
+    
+    uploadArea.addEventListener('dragleave', () => {
+        uploadArea.classList.remove('drag-over');
+    });
+    
+    uploadArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadArea.classList.remove('drag-over');
+        
+        const files = e.dataTransfer.files;
+        if (files.length > 0 && files[0].type.startsWith('image/')) {
+            handleImageFile(files[0]);
+        }
+    });
+}
 
-        title.textContent = tour.title;
-        modal.style.display = 'flex';
+// معالجة اختيار الصورة
+function handleImageSelect(e) {
+    const file = e.target.files[0];
+    if (file && file.type.startsWith('image/')) {
+        handleImageFile(file);
+    } else {
+        showNotification('يرجى اختيار ملف صورة صالح', 'error');
+    }
+}
 
-        // Show loading
+// معالجة ملف الصورة
+function handleImageFile(file) {
+    console.log('📷 معالجة الصورة:', file.name);
+    
+    // التحقق من حجم الصورة (أقل من 10 ميجا)
+    if (file.size > 10 * 1024 * 1024) {
+        showNotification('حجم الصورة كبير جداً. يرجى اختيار صورة أصغر من 10 ميجا', 'error');
+        return;
+    }
+    
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        uploadedImage = e.target.result;
+        displayImagePreview(uploadedImage);
+        enableAvatarControls();
+        showNotification('تم رفع الصورة بنجاح!', 'success');
+    };
+    
+    reader.onerror = () => {
+        showNotification('حدث خطأ في قراءة الصورة', 'error');
+    };
+    
+    reader.readAsDataURL(file);
+}
+
+// عرض معاينة الصورة
+function displayImagePreview(imageSrc) {
+    const previewContainer = document.getElementById('previewContainer');
+    if (!previewContainer) return;
+    
+    previewContainer.innerHTML = `
+        <img src="${imageSrc}" alt="معاينة الصورة" style="
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 15px;
+        ">
+        <div style="
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+        ">
+            جاهز للتحويل
+        </div>
+    `;
+}
+
+// تفعيل أزرار التحكم في Avatar
+function enableAvatarControls() {
+    const generateBtn = document.getElementById('generateAvatar');
+    const customizeBtn = document.getElementById('customizeAvatar');
+    
+    if (generateBtn) {
+        generateBtn.disabled = false;
+    }
+    
+    if (customizeBtn) {
+        customizeBtn.disabled = false;
+    }
+}
+
+// إنشاء Avatar
+function generateAvatar() {
+    if (!uploadedImage) {
+        showNotification('يرجى رفع صورة أولاً', 'error');
+        return;
+    }
+    
+    console.log('🎨 بدء إنشاء Avatar...');
+    showAvatarProgress();
+    
+    // محاكاة عملية إنشاء Avatar
+    simulateAvatarGeneration();
+}
+
+// عرض تقدم إنشاء Avatar
+function showAvatarProgress() {
+    const progressElement = document.getElementById('avatarProgress');
+    if (!progressElement) return;
+    
+    progressElement.style.display = 'block';
+    
+    const progressFill = progressElement.querySelector('.progress-fill');
+    const progressText = progressElement.querySelector('p');
+    
+    let progress = 0;
+    const interval = setInterval(() => {
+        progress += Math.random() * 15;
+        if (progress > 100) progress = 100;
+        
+        if (progressFill) {
+            progressFill.style.width = progress + '%';
+        }
+        
+        if (progressText) {
+            if (progress < 30) {
+                progressText.textContent = 'تحليل الصورة...';
+            } else if (progress < 60) {
+                progressText.textContent = 'إنشاء النموذج ثلاثي الأبعاد...';
+            } else if (progress < 90) {
+                progressText.textContent = 'تطبيق التفاصيل...';
+            } else {
+                progressText.textContent = 'اللمسات الأخيرة...';
+            }
+        }
+        
+        if (progress >= 100) {
+            clearInterval(interval);
+            setTimeout(() => {
+                completeAvatarGeneration();
+            }, 500);
+        }
+    }, 200);
+}
+
+// إكمال إنشاء Avatar
+function completeAvatarGeneration() {
+    const progressElement = document.getElementById('avatarProgress');
+    if (progressElement) {
+        progressElement.style.display = 'none';
+    }
+    
+    // عرض Avatar المكتمل
+    displayGeneratedAvatar();
+    
+    // تفعيل أزرار التحكم الإضافية
+    const downloadBtn = document.getElementById('downloadAvatar');
+    if (downloadBtn) {
+        downloadBtn.disabled = false;
+    }
+    
+    showNotification('تم إنشاء Avatar بنجاح!', 'success');
+}
+
+// عرض Avatar المُنشأ
+function displayGeneratedAvatar() {
+    const previewContainer = document.getElementById('previewContainer');
+    if (!previewContainer) return;
+    
+    // محاكاة Avatar ثلاثي الأبعاد
+    previewContainer.innerHTML = `
+        <div style="
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        ">
+            <div style="
+                width: 150px;
+                height: 150px;
+                background: url('${uploadedImage}') center/cover;
+                border-radius: 50%;
+                border: 4px solid white;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+                animation: avatarPulse 2s ease-in-out infinite;
+            "></div>
+            <div style="
+                position: absolute;
+                bottom: 15px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: rgba(255,255,255,0.9);
+                padding: 8px 16px;
+                border-radius: 20px;
+                font-size: 0.9rem;
+                font-weight: 600;
+                color: #333;
+            ">
+                Avatar جاهز!
+            </div>
+        </div>
+        <style>
+            @keyframes avatarPulse {
+                0%, 100% { transform: scale(1); }
+                50% { transform: scale(1.05); }
+            }
+        </style>
+    `;
+    
+    avatarData = {
+        originalImage: uploadedImage,
+        generatedAt: new Date().toISOString(),
+        style: '3D Realistic'
+    };
+}
+
+// محاكاة عملية إنشاء Avatar
+function simulateAvatarGeneration() {
+    // هنا يمكن إضافة استدعاء API حقيقي لإنشاء Avatar
+    // مثل استخدام Ready Player Me أو أي خدمة أخرى
+    
+    setTimeout(() => {
+        completeAvatarGeneration();
+    }, 3000);
+}
+
+// تخصيص Avatar
+function customizeAvatar() {
+    if (!avatarData) {
+        showNotification('يرجى إنشاء Avatar أولاً', 'error');
+        return;
+    }
+    
+    // فتح نافذة التخصيص
+    showCustomizationModal();
+}
+
+// عرض نافذة التخصيص
+function showCustomizationModal() {
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.style.display = 'flex';
+    modal.innerHTML = `
+        <div class="modal-content" style="width: 600px; height: 500px;">
+            <div class="modal-header">
+                <h3>تخصيص Avatar</h3>
+                <button class="close-btn" onclick="this.closest('.modal').remove()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; height: 100%;">
+                    <div>
+                        <h4 style="margin-bottom: 15px;">خيارات التخصيص</h4>
+                        <div style="display: flex; flex-direction: column; gap: 15px;">
+                            <div>
+                                <label>نمط الشعر:</label>
+                                <select style="width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #ddd;">
+                                    <option>قصير</option>
+                                    <option>متوسط</option>
+                                    <option>طويل</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label>لون العينين:</label>
+                                <select style="width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #ddd;">
+                                    <option>بني</option>
+                                    <option>أسود</option>
+                                    <option>أزرق</option>
+                                    <option>أخضر</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label>نوع الملابس:</label>
+                                <select style="width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #ddd;">
+                                    <option>رسمي</option>
+                                    <option>كاجوال</option>
+                                    <option>رياضي</option>
+                                </select>
+                            </div>
+                            <button class="btn btn-primary" style="margin-top: 20px;" onclick="applyCustomization()">
+                                تطبيق التغييرات
+                            </button>
+                        </div>
+                    </div>
+                    <div style="background: #f5f5f5; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                        <div style="text-align: center; color: #666;">
+                            <i class="fas fa-user-circle" style="font-size: 4rem; margin-bottom: 10px;"></i>
+                            <p>معاينة التخصيص</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+}
+
+// تطبيق التخصيص
+function applyCustomization() {
+    showNotification('تم تطبيق التخصيص بنجاح!', 'success');
+    document.querySelector('.modal').remove();
+}
+
+// تحميل Avatar
+function downloadAvatar() {
+    if (!avatarData) {
+        showNotification('لا يوجد Avatar للتحميل', 'error');
+        return;
+    }
+    
+    // محاكاة تحميل Avatar
+    showNotification('جاري تحضير Avatar للتحميل...', 'info');
+    
+    setTimeout(() => {
+        // إنشاء رابط تحميل وهمي
+        const link = document.createElement('a');
+        link.href = avatarData.originalImage;
+        link.download = `coptic-avatar-${Date.now()}.png`;
+        link.click();
+        
+        showNotification('تم تحميل Avatar بنجاح!', 'success');
+    }, 1500);
+}
+
+// فتح نافذة الكاميرا
+function openCameraModal() {
+    const modal = document.getElementById('cameraModal');
+    if (!modal) {
+        console.error('❌ نافذة الكاميرا غير موجودة');
+        return;
+    }
+    
+    modal.style.display = 'flex';
+    startCamera();
+}
+
+// إغلاق نافذة الكاميرا
+function closeCameraModal() {
+    const modal = document.getElementById('cameraModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+    stopCamera();
+}
+
+// تشغيل الكاميرا
+async function startCamera() {
+    const video = document.getElementById('cameraVideo');
+    if (!video) return;
+    
+    try {
+        cameraStream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: currentCamera }
+        });
+        video.srcObject = cameraStream;
+        
+        // إعداد أزرار التحكم
+        setupCameraControls();
+        
+    } catch (error) {
+        console.error('❌ خطأ في تشغيل الكاميرا:', error);
+        showNotification('لا يمكن الوصول للكاميرا. تأكد من إعطاء الإذن', 'error');
+    }
+}
+
+// إيقاف الكاميرا
+function stopCamera() {
+    if (cameraStream) {
+        cameraStream.getTracks().forEach(track => track.stop());
+        cameraStream = null;
+    }
+}
+
+// إعداد أزرار التحكم في الكاميرا
+function setupCameraControls() {
+    const switchBtn = document.getElementById('switchCameraBtn');
+    const captureBtn = document.getElementById('captureBtn');
+    
+    if (switchBtn) {
+        switchBtn.onclick = switchCamera;
+    }
+    
+    if (captureBtn) {
+        captureBtn.onclick = capturePhoto;
+    }
+}
+
+// تبديل الكاميرا
+async function switchCamera() {
+    currentCamera = currentCamera === 'user' ? 'environment' : 'user';
+    stopCamera();
+    await startCamera();
+}
+
+// التقاط الصورة
+function capturePhoto() {
+    const video = document.getElementById('cameraVideo');
+    const canvas = document.getElementById('cameraCanvas');
+    
+    if (!video || !canvas) return;
+    
+    const context = canvas.getContext('2d');
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    
+    // رسم الصورة على الكانفاس
+    context.drawImage(video, 0, 0);
+    
+    // تحويل إلى Base64
+    const imageData = canvas.toDataURL('image/jpeg', 0.8);
+    
+    // استخدام الصورة الملتقطة
+    uploadedImage = imageData;
+    displayImagePreview(imageData);
+    enableAvatarControls();
+    
+    // إغلاق نافذة الكاميرا
+    closeCameraModal();
+    
+    // التنقل إلى قسم Avatar
+    showSection('avatar');
+    
+    showNotification('تم التقاط الصورة بنجاح!', 'success');
+}
+
+// إعادة تعيين نظام Avatar
+function resetAvatarSystem() {
+    uploadedImage = null;
+    avatarData = null;
+    
+    // إعادة تعيين المعاينة
+    const previewContainer = document.getElementById('previewContainer');
+    if (previewContainer) {
+        previewContainer.innerHTML = `
+            <div class="avatar-placeholder">
+                <i class="fas fa-user-circle"></i>
+                <p>معاينة Avatar</p>
+                <span>سيظهر هنا بعد رفع الصورة</span>
+            </div>
+        `;
+    }
+    
+    // تعطيل الأزرار
+    const buttons = ['generateAvatar', 'customizeAvatar', 'downloadAvatar'];
+    buttons.forEach(btnId => {
+        const btn = document.getElementById(btnId);
+        if (btn) btn.disabled = true;
+    });
+    
+    // إخفاء شريط التقدم
+    const progressElement = document.getElementById('avatarProgress');
+    if (progressElement) {
+        progressElement.style.display = 'none';
+    }
+}
+
+// تهيئة الزيارات الافتراضية
+function initializeVirtualTours() {
+    console.log('🏛️ تهيئة الزيارات الافتراضية...');
+    
+    // إعداد البيانات
+    const tours = {
+        'hanging-church': {
+            title: 'كنيسة السيدة العذراء المعلقة',
+            url: 'https://www.360cities.net/image/hanging-church-3-cairo',
+            description: 'جولة افتراضية في أقدم كنائس مصر القديمة'
+        },
+        'st-anthony': {
+            title: 'دير الأنبا أنطونيوس',
+            url: 'https://stantony.net/virtual-tour/',
+            description: 'اكتشف أقدم دير في العالم'
+        },
+        'abu-serga': {
+            title: 'كنيسة أبو سرجة',
+            url: 'https://www.copticmuseum.gov.eg/virtual-tour/abu-serga',
+            description: 'المكان الذي استراحت فيه العائلة المقدسة'
+        }
+    };
+    
+    // حفظ البيانات للاستخدام لاحقاً
+    window.virtualTours = tours;
+}
+
+// فتح الزيارة الافتراضية
+function openVirtualTour(tourId) {
+    console.log(`🎯 فتح الزيارة الافتراضية: ${tourId}`);
+    
+    const tours = window.virtualTours;
+    if (!tours || !tours[tourId]) {
+        showNotification('عذراً، هذه الزيارة غير متاحة حالياً', 'error');
+        return;
+    }
+    
+    const tour = tours[tourId];
+    const modal = document.getElementById('tourModal');
+    
+    if (!modal) {
+        console.error('❌ نافذة الزيارة الافتراضية غير موجودة');
+        return;
+    }
+    
+    // تحديث عنوان النافذة
+    const titleElement = document.getElementById('tourTitle');
+    if (titleElement) {
+        titleElement.textContent = tour.title;
+    }
+    
+    // تحديث محتوى الزيارة
+    const viewer = document.getElementById('tourViewer');
+    if (viewer) {
         viewer.innerHTML = `
             <div class="tour-loading">
                 <i class="fas fa-spinner fa-spin"></i>
-                <p>جاري تحميل ${tour.title}...</p>
+                <p>جاري تحميل الزيارة الافتراضية...</p>
             </div>
         `;
-
-        // Load tour content based on type
+        
+        // تحميل الزيارة الافتراضية
         setTimeout(() => {
-            this.loadTourContent(viewer, tour);
+            loadVirtualTourContent(viewer, tour);
         }, 1000);
     }
+    
+    // عرض النافذة
+    modal.style.display = 'flex';
+    
+    // إعداد أزرار التحكم
+    setupTourControls();
+}
 
-    loadTourContent(viewer, tour) {
-        switch (tour.type) {
-            case '360cities':
-                viewer.innerHTML = `
-                    <div class="tour-360">
-                        <iframe src="${tour.url}" 
-                                width="100%" 
-                                height="100%" 
-                                frameborder="0" 
-                                allowfullscreen>
-                        </iframe>
-                    </div>
-                    <div class="tour-info">
-                        <h4>${tour.title}</h4>
-                        <p>${tour.description}</p>
-                        <div class="tour-highlights">
-                            <h5>أهم المعالم:</h5>
-                            <ul>
-                                ${tour.highlights.map(highlight => `<li>${highlight}</li>`).join('')}
-                            </ul>
-                        </div>
-                    </div>
-                `;
-                break;
-            case 'custom':
-                viewer.innerHTML = `
-                    <div class="tour-custom">
-                        <iframe src="${tour.url}" 
-                                width="100%" 
-                                height="100%" 
-                                frameborder="0" 
-                                allowfullscreen>
-                        </iframe>
-                    </div>
-                `;
-                break;
-            case 'images':
-                viewer.innerHTML = `
-                    <div class="tour-gallery">
-                        <div class="gallery-main">
-                            <img src="/api/placeholder/800/600" alt="${tour.title}" id="mainImage">
-                        </div>
-                        <div class="gallery-thumbnails">
-                            ${tour.highlights.map((highlight, index) => `
-                                <div class="thumbnail" onclick="copticApp.changeTourImage(${index})">
-                                    <img src="/api/placeholder/150/100" alt="${highlight}">
-                                    <span>${highlight}</span>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                `;
-                break;
-        }
-    }
-
-    changeTourImage(index) {
-        const mainImage = document.getElementById('mainImage');
-        if (mainImage) {
-            mainImage.src = `/api/placeholder/800/600?random=${index}`;
-        }
-    }
-
-    closeTourModal() {
-        const modal = document.getElementById('tourModal');
-        modal.style.display = 'none';
-    }
-
-    // Avatar System
-    initializeAvatarSystem() {
-        const uploadArea = document.getElementById('uploadArea');
-        const imageInput = document.getElementById('imageInput');
-        const cameraBtn = document.getElementById('cameraBtn');
-        const generateBtn = document.getElementById('generateAvatar');
-        const downloadBtn = document.getElementById('downloadAvatar');
-
-        if (uploadArea && imageInput) {
-            // Drag and drop functionality
-            uploadArea.addEventListener('click', () => imageInput.click());
-            uploadArea.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                uploadArea.classList.add('drag-over');
-            });
-            uploadArea.addEventListener('dragleave', () => {
-                uploadArea.classList.remove('drag-over');
-            });
-            uploadArea.addEventListener('drop', (e) => {
-                e.preventDefault();
-                uploadArea.classList.remove('drag-over');
-                const files = e.dataTransfer.files;
-                if (files.length > 0) {
-                    this.handleImageUpload(files[0]);
-                }
-            });
-
-            imageInput.addEventListener('change', (e) => {
-                if (e.target.files.length > 0) {
-                    this.handleImageUpload(e.target.files[0]);
-                }
-            });
-        }
-
-        if (cameraBtn) {
-            cameraBtn.addEventListener('click', () => this.openCamera());
-        }
-
-        if (generateBtn) {
-            generateBtn.addEventListener('click', () => this.generateAvatar());
-        }
-
-        if (downloadBtn) {
-            downloadBtn.addEventListener('click', () => this.downloadAvatar());
-        }
-    }
-
-    handleImageUpload(file) {
-        if (!file.type.startsWith('image/')) {
-            this.showNotification('يرجى اختيار ملف صورة صالح', 'error');
-            return;
-        }
-
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            this.displayImagePreview(e.target.result);
-            this.enableAvatarGeneration();
-        };
-        reader.readAsDataURL(file);
-    }
-
-    displayImagePreview(imageSrc) {
-        const previewContainer = document.getElementById('previewContainer');
-        if (previewContainer) {
-            previewContainer.innerHTML = `
-                <div class="image-preview">
-                    <img src="${imageSrc}" alt="صورة المعاينة" id="previewImage">
-                    <div class="preview-overlay">
-                        <i class="fas fa-check-circle"></i>
-                        <p>جاهز لإنشاء Avatar</p>
-                    </div>
-                </div>
-            `;
-        }
-    }
-
-    enableAvatarGeneration() {
-        const generateBtn = document.getElementById('generateAvatar');
-        const customizeBtn = document.getElementById('customizeAvatar');
-        
-        if (generateBtn) {
-            generateBtn.disabled = false;
-            generateBtn.classList.add('enabled');
-        }
-        
-        if (customizeBtn) {
-            customizeBtn.disabled = false;
-        }
-    }
-
-    openCamera() {
-        const modal = document.getElementById('cameraModal');
-        const video = document.getElementById('cameraVideo');
-        
-        modal.style.display = 'flex';
-        
-        navigator.mediaDevices.getUserMedia({ video: true })
-            .then(stream => {
-                video.srcObject = stream;
-                this.currentStream = stream;
-            })
-            .catch(err => {
-                console.error('خطأ في الوصول للكاميرا:', err);
-                this.showNotification('لا يمكن الوصول للكاميرا', 'error');
-                this.closeCameraModal();
-            });
-    }
-
-    closeCameraModal() {
-        const modal = document.getElementById('cameraModal');
-        modal.style.display = 'none';
-        
-        if (this.currentStream) {
-            this.currentStream.getTracks().forEach(track => track.stop());
-        }
-    }
-
-    capturePhoto() {
-        const video = document.getElementById('cameraVideo');
-        const canvas = document.getElementById('cameraCanvas');
-        const context = canvas.getContext('2d');
-        
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        context.drawImage(video, 0, 0);
-        
-        const imageData = canvas.toDataURL('image/png');
-        this.displayImagePreview(imageData);
-        this.enableAvatarGeneration();
-        this.closeCameraModal();
-    }
-
-    generateAvatar() {
-        const progressContainer = document.getElementById('avatarProgress');
-        const generateBtn = document.getElementById('generateAvatar');
-        
-        if (progressContainer) {
-            progressContainer.style.display = 'block';
-        }
-        
-        if (generateBtn) {
-            generateBtn.disabled = true;
-            generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الإنشاء...';
-        }
-        
-        // Simulate avatar generation process
-        this.simulateAvatarGeneration();
-    }
-
-    simulateAvatarGeneration() {
-        const steps = [
-            'تحليل الصورة...',
-            'إنشاء النموذج ثلاثي الأبعاد...',
-            'تطبيق التحسينات...',
-            'إضافة التفاصيل...',
-            'اكتمل الإنشاء!'
-        ];
-        
-        let currentStep = 0;
-        const progressFill = document.querySelector('.progress-fill');
-        const progressText = document.querySelector('#avatarProgress p');
-        
-        const interval = setInterval(() => {
-            if (currentStep < steps.length) {
-                const progress = ((currentStep + 1) / steps.length) * 100;
-                if (progressFill) {
-                    progressFill.style.width = `${progress}%`;
-                }
-                if (progressText) {
-                    progressText.textContent = steps[currentStep];
-                }
-                currentStep++;
-            } else {
-                clearInterval(interval);
-                this.completeAvatarGeneration();
-            }
-        }, 1500);
-    }
-
-    completeAvatarGeneration() {
-        const previewContainer = document.getElementById('previewContainer');
-        const progressContainer = document.getElementById('avatarProgress');
-        const generateBtn = document.getElementById('generateAvatar');
-        const downloadBtn = document.getElementById('downloadAvatar');
-        
-        if (previewContainer) {
-            previewContainer.innerHTML = `
-                <div class="avatar-result">
-                    <div class="avatar-3d">
-                        <div class="avatar-model">
-                            <i class="fas fa-user-astronaut"></i>
-                        </div>
-                        <div class="avatar-controls-3d">
-                            <button class="control-btn" onclick="copticApp.rotateAvatar('left')">
-                                <i class="fas fa-undo"></i>
-                            </button>
-                            <button class="control-btn" onclick="copticApp.rotateAvatar('right')">
-                                <i class="fas fa-redo"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="avatar-info">
-                        <h4>تم إنشاء Avatar بنجاح!</h4>
-                        <p>يمكنك الآن تخصيصه أو تحميله</p>
-                    </div>
-                </div>
-            `;
-        }
-        
-        if (progressContainer) {
-            progressContainer.style.display = 'none';
-        }
-        
-        if (generateBtn) {
-            generateBtn.disabled = false;
-            generateBtn.innerHTML = '<i class="fas fa-sync"></i> إعادة الإنشاء';
-        }
-        
-        if (downloadBtn) {
-            downloadBtn.disabled = false;
-        }
-        
-        this.showNotification('تم إنشاء Avatar بنجاح!', 'success');
-    }
-
-    rotateAvatar(direction) {
-        const avatarModel = document.querySelector('.avatar-model');
-        if (avatarModel) {
-            const currentRotation = avatarModel.style.transform || 'rotateY(0deg)';
-            const currentAngle = parseInt(currentRotation.match(/rotateY\((-?\d+)deg\)/)?.[1] || 0);
-            const newAngle = direction === 'left' ? currentAngle - 45 : currentAngle + 45;
-            avatarModel.style.transform = `rotateY(${newAngle}deg)`;
-        }
-    }
-
-    downloadAvatar() {
-        // Simulate download
-        this.showNotification('جاري تحضير التحميل...', 'info');
-        
-        setTimeout(() => {
-            // Create a dummy download
-            const link = document.createElement('a');
-            link.href = '/api/placeholder/512/512';
-            link.download = 'my-avatar.png';
-            link.click();
-            
-            this.showNotification('تم تحميل Avatar بنجاح!', 'success');
-        }, 2000);
-    }
-
-    // Games System
-    initializeGames() {
-        this.games = {
-            apostolic: [
-                {
-                    id: 'mark-journey',
-                    title: 'رحلة القديس مرقس',
-                    description: 'تابع رحلة القديس مرقس في نشر المسيحية',
-                    type: 'adventure',
-                    difficulty: 'سهل',
-                    duration: '15 دقيقة'
-                }
-            ],
-            persecution: [
-                {
-                    id: 'martyrs-courage',
-                    title: 'شجاعة الشهداء',
-                    description: 'اختبر قوة إيمان الشهداء في مواجهة الاضطهاد',
-                    type: 'story',
-                    difficulty: 'متوسط',
-                    duration: '20 دقيقة'
-                }
-            ],
-            golden: [
-                {
-                    id: 'desert-fathers',
-                    title: 'آباء البرية',
-                    description: 'تعلم من حكمة آباء البرية وتعاليمهم',
-                    type: 'wisdom',
-                    difficulty: 'متقدم',
-                    duration: '25 دقيقة'
-                }
-            ]
-        };
-    }
-
-    initializeGamesSection() {
-        const eraButtons = document.querySelectorAll('.era-btn');
-        const gamesGrid = document.getElementById('gamesGrid');
-        
-        eraButtons.forEach(btn => {
-            btn.addEventListener('click', () => {
-                eraButtons.forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                
-                const era = btn.dataset.era;
-                this.displayGames(era);
-            });
-        });
-        
-        // Display all games initially
-        this.displayGames('all');
-    }
-
-    displayGames(era) {
-        const gamesGrid = document.getElementById('gamesGrid');
-        if (!gamesGrid) return;
-        
-        let gamesToShow = [];
-        
-        if (era === 'all') {
-            Object.values(this.games).forEach(eraGames => {
-                gamesToShow = gamesToShow.concat(eraGames);
-            });
-        } else if (this.games[era]) {
-            gamesToShow = this.games[era];
-        }
-        
-        if (gamesToShow.length === 0) {
-            gamesGrid.innerHTML = `
-                <div class="no-games">
-                    <i class="fas fa-gamepad"></i>
-                    <h3>قريباً...</h3>
-                    <p>ألعاب هذا العصر قيد التطوير</p>
-                </div>
-            `;
-            return;
-        }
-        
-        gamesGrid.innerHTML = gamesToShow.map(game => `
-            <div class="game-card" onclick="copticApp.playGame('${game.id}')">
-                <div class="game-icon">
-                    <i class="fas fa-${this.getGameIcon(game.type)}"></i>
-                </div>
-                <div class="game-content">
-                    <h3>${game.title}</h3>
-                    <p>${game.description}</p>
-                    <div class="game-meta">
-                        <span class="game-type">${game.type}</span>
-                        <span class="game-difficulty">${game.difficulty}</span>
-                        <span class="game-duration">${game.duration}</span>
-                    </div>
-                </div>
-                <div class="game-play-btn">
-                    <i class="fas fa-play"></i>
-                </div>
-            </div>
-        `).join('');
-    }
-
-    getGameIcon(type) {
-        const icons = {
-            adventure: 'map',
-            story: 'book-open',
-            wisdom: 'lightbulb',
-            puzzle: 'puzzle-piece',
-            quiz: 'question-circle'
-        };
-        return icons[type] || 'gamepad';
-    }
-
-    playGame(gameId) {
-        this.showNotification('جاري تحميل اللعبة...', 'info');
-        
-        // Simulate game loading
-        setTimeout(() => {
-            this.showNotification('اللعبة قيد التطوير - قريباً!', 'info');
-        }, 1500);
-    }
-
-    // Utility Functions
-    toggleMobileMenu() {
-        const navMenu = document.querySelector('.nav-menu');
-        const hamburger = document.querySelector('.hamburger');
-        
-        if (navMenu && hamburger) {
-            navMenu.classList.toggle('active');
-            hamburger.classList.toggle('active');
-        }
-    }
-
-    closeAllModals() {
-        const modals = document.querySelectorAll('.modal');
-        modals.forEach(modal => {
-            modal.style.display = 'none';
-        });
-        
-        // Stop camera stream if active
-        if (this.currentStream) {
-            this.currentStream.getTracks().forEach(track => track.stop());
-        }
-    }
-
-    handleResize() {
-        // Handle responsive design adjustments
-        const isMobile = window.innerWidth <= 768;
-        
-        if (isMobile) {
-            // Mobile-specific adjustments
-            this.adjustForMobile();
-        } else {
-            // Desktop-specific adjustments
-            this.adjustForDesktop();
-        }
-    }
-
-    adjustForMobile() {
-        // Mobile optimizations
-        const navMenu = document.querySelector('.nav-menu');
-        if (navMenu && navMenu.classList.contains('active')) {
-            navMenu.classList.remove('active');
-        }
-    }
-
-    adjustForDesktop() {
-        // Desktop optimizations
-        const hamburger = document.querySelector('.hamburger');
-        if (hamburger && hamburger.classList.contains('active')) {
-            hamburger.classList.remove('active');
-        }
-    }
-
-    setupResponsiveDesign() {
-        // Initial responsive setup
-        this.handleResize();
-        
-        // Add touch support for mobile
-        if ('ontouchstart' in window) {
-            document.body.classList.add('touch-device');
-        }
-    }
-
-    showNotification(message, type = 'info') {
-        const notification = document.createElement('div');
-        notification.className = `notification notification-${type}`;
-        notification.style.cssText = `
-            position: fixed;
-            top: 100px;
-            right: 20px;
-            background: ${type === 'success' ? '#48bb78' : type === 'error' ? '#e53e3e' : '#4299e1'};
-            color: white;
-            padding: 1rem 1.5rem;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-            z-index: 3000;
-            animation: slideInRight 0.3s ease-out;
-            max-width: 300px;
-            font-weight: 600;
+// تحميل محتوى الزيارة الافتراضية
+function loadVirtualTourContent(viewer, tour) {
+    if (tour.url.includes('360cities.net')) {
+        // للزيارات من 360cities
+        viewer.innerHTML = `
+            <iframe 
+                src="${tour.url}" 
+                width="100%" 
+                height="100%" 
+                frameborder="0" 
+                allowfullscreen
+                style="border-radius: 15px;"
+            ></iframe>
         `;
-        
-        notification.innerHTML = `
-            <div style="display: flex; align-items: center; gap: 0.5rem;">
-                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
-                <span>${message}</span>
+    } else {
+        // للزيارات الأخرى
+        viewer.innerHTML = `
+            <div style="
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                border-radius: 15px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                text-align: center;
+                padding: 40px;
+            ">
+                <i class="fas fa-church" style="font-size: 4rem; margin-bottom: 20px; opacity: 0.8;"></i>
+                <h3 style="margin-bottom: 15px;">${tour.title}</h3>
+                <p style="margin-bottom: 30px; opacity: 0.9;">${tour.description}</p>
+                <button class="btn btn-primary" onclick="window.open('${tour.url}', '_blank')" style="
+                    background: white;
+                    color: #667eea;
+                    border: none;
+                    padding: 12px 24px;
+                    border-radius: 25px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                ">
+                    <i class="fas fa-external-link-alt" style="margin-left: 8px;"></i>
+                    زيارة الموقع الرسمي
+                </button>
             </div>
         `;
-        
-        document.body.appendChild(notification);
-        
-        setTimeout(() => {
-            notification.style.animation = 'slideOutRight 0.3s ease-out';
-            setTimeout(() => {
-                if (document.body.contains(notification)) {
-                    document.body.removeChild(notification);
-                }
-            }, 300);
-        }, 3000);
-    }
-
-    loadUserPreferences() {
-        const saved = localStorage.getItem('coptic_website_preferences');
-        return saved ? JSON.parse(saved) : {
-            theme: 'light',
-            language: 'ar',
-            notifications: true,
-            autoplay: true
-        };
-    }
-
-    saveUserPreferences() {
-        localStorage.setItem('coptic_website_preferences', JSON.stringify(this.userPreferences));
-    }
-
-    loadUserData() {
-        // Load user-specific data
-        const userData = localStorage.getItem('coptic_website_user_data');
-        if (userData) {
-            this.userData = JSON.parse(userData);
-        } else {
-            this.userData = {
-                visitCount: 0,
-                lastVisit: null,
-                completedTours: [],
-                createdAvatars: 0,
-                gameProgress: {}
-            };
-        }
-        
-        this.userData.visitCount++;
-        this.userData.lastVisit = new Date().toISOString();
-        this.saveUserData();
-    }
-
-    saveUserData() {
-        localStorage.setItem('coptic_website_user_data', JSON.stringify(this.userData));
-    }
-
-    // API Integration placeholder
-    async callAPI(endpoint, data = null) {
-        try {
-            const options = {
-                method: data ? 'POST' : 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                }
-            };
-            
-            if (data) {
-                options.body = JSON.stringify(data);
-            }
-            
-            const response = await fetch(`/api/${endpoint}`, options);
-            return await response.json();
-        } catch (error) {
-            console.error('API Error:', error);
-            throw error;
-        }
     }
 }
 
-// Global functions for HTML onclick events
-function showSection(sectionId) {
-    if (window.copticApp) {
-        window.copticApp.showSection(sectionId);
+// إعداد أزرار التحكم في الزيارة
+function setupTourControls() {
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
+    const infoBtn = document.getElementById('infoBtn');
+    
+    if (fullscreenBtn) {
+        fullscreenBtn.onclick = toggleFullscreen;
+    }
+    
+    if (infoBtn) {
+        infoBtn.onclick = showTourInfo;
     }
 }
 
-function openVirtualTour(tourId) {
-    if (window.copticApp) {
-        window.copticApp.openVirtualTour(tourId);
+// تبديل ملء الشاشة
+function toggleFullscreen() {
+    const modal = document.getElementById('tourModal');
+    if (!modal) return;
+    
+    if (!document.fullscreenElement) {
+        modal.requestFullscreen().catch(err => {
+            console.error('خطأ في ملء الشاشة:', err);
+        });
+    } else {
+        document.exitFullscreen();
     }
 }
 
+// عرض معلومات الزيارة
+function showTourInfo() {
+    showNotification('معلومات إضافية عن الزيارة الافتراضية', 'info');
+}
+
+// إغلاق نافذة الزيارة الافتراضية
 function closeTourModal() {
-    if (window.copticApp) {
-        window.copticApp.closeTourModal();
+    const modal = document.getElementById('tourModal');
+    if (modal) {
+        modal.style.display = 'none';
+        
+        // إيقاف أي محتوى قيد التشغيل
+        const viewer = document.getElementById('tourViewer');
+        if (viewer) {
+            viewer.innerHTML = `
+                <div class="tour-loading">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>جاري تحميل الزيارة الافتراضية...</p>
+                </div>
+            `;
+        }
     }
 }
 
-function closeCameraModal() {
-    if (window.copticApp) {
-        window.copticApp.closeCameraModal();
-    }
-}
-
-function toggleMobileMenu() {
-    if (window.copticApp) {
-        window.copticApp.toggleMobileMenu();
-    }
-}
-
-// Initialize the application
-document.addEventListener('DOMContentLoaded', function() {
-    window.copticApp = new CopticWebsiteApp();
+// تهيئة الألعاب
+function initializeGames() {
+    console.log('🎮 تهيئة الألعاب...');
     
-    // Setup camera capture button
-    const captureBtn = document.getElementById('captureBtn');
-    if (captureBtn) {
-        captureBtn.addEventListener('click', () => {
-            window.copticApp.capturePhoto();
+    // بيانات الألعاب
+    const games = {
+        apostolic: [
+            {
+                id: 'mark-journey',
+                title: 'رحلة القديس مرقس',
+                description: 'تتبع رحلة القديس مرقس في نشر المسيحية بمصر',
+                icon: 'fas fa-map',
+                difficulty: 'سهل',
+                duration: '15 دقيقة'
+            },
+            {
+                id: 'apostles-quiz',
+                title: 'اختبار الرسل',
+                description: 'اختبر معرفتك بحياة وتعاليم الرسل',
+                icon: 'fas fa-question-circle',
+                difficulty: 'متوسط',
+                duration: '10 دقائق'
+            }
+        ],
+        persecution: [
+            {
+                id: 'martyrs-memory',
+                title: 'ذاكرة الشهداء',
+                description: 'لعبة ذاكرة لتعلم أسماء وقصص الشهداء',
+                icon: 'fas fa-heart',
+                difficulty: 'متوسط',
+                duration: '20 دقيقة'
+            },
+            {
+                id: 'persecution-timeline',
+                title: 'خط زمني الاضطهاد',
+                description: 'رتب أحداث عصر الاضطهاد الروماني',
+                icon: 'fas fa-clock',
+                difficulty: 'صعب',
+                duration: '25 دقيقة'
+            }
+        ],
+        golden: [
+            {
+                id: 'fathers-wisdom',
+                title: 'حكمة الآباء',
+                description: 'اكتشف تعاليم آباء الكنيسة العظماء',
+                icon: 'fas fa-book-open',
+                difficulty: 'متوسط',
+                duration: '18 دقيقة'
+            }
+        ],
+        islamic: [
+            {
+                id: 'coexistence-story',
+                title: 'قصة التعايش',
+                description: 'تعلم عن فترات التعايش والتحديات',
+                icon: 'fas fa-handshake',
+                difficulty: 'متوسط',
+                duration: '22 دقيقة'
+            }
+        ],
+        modern: [
+            {
+                id: 'modern-saints',
+                title: 'قديسو العصر الحديث',
+                description: 'تعرف على قديسي القرن العشرين',
+                icon: 'fas fa-star',
+                difficulty: 'سهل',
+                duration: '12 دقيقة'
+            }
+        ]
+    };
+    
+    // حفظ البيانات
+    window.gamesData = games;
+    
+    // إعداد مستمعي الأحداث للعصور
+    const eraButtons = document.querySelectorAll('.era-btn');
+    eraButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            // إزالة التفعيل من جميع الأزرار
+            eraButtons.forEach(b => b.classList.remove('active'));
+            // تفعيل الزر المحدد
+            btn.classList.add('active');
+            // تحميل الألعاب
+            const era = btn.getAttribute('data-era');
+            loadGames(era);
         });
+    });
+}
+
+// تحميل الألعاب حسب العصر
+function loadGames(era) {
+    console.log(`🎯 تحميل ألعاب العصر: ${era}`);
+    
+    const gamesGrid = document.getElementById('gamesGrid');
+    if (!gamesGrid) return;
+    
+    const games = window.gamesData;
+    if (!games) return;
+    
+    let allGames = [];
+    
+    if (era === 'all') {
+        // جمع جميع الألعاب
+        Object.values(games).forEach(eraGames => {
+            allGames = allGames.concat(eraGames);
+        });
+    } else if (games[era]) {
+        allGames = games[era];
     }
     
-    // Handle browser back/forward buttons
-    window.addEventListener('popstate', (e) => {
-        if (e.state && e.state.section) {
-            window.copticApp.showSection(e.state.section);
+    // عرض الألعاب
+    gamesGrid.innerHTML = allGames.map(game => `
+        <div class="game-card" onclick="startGame('${game.id}')">
+            <div class="game-icon">
+                <i class="${game.icon}"></i>
+            </div>
+            <div class="game-content">
+                <h3>${game.title}</h3>
+                <p>${game.description}</p>
+                <div class="game-meta">
+                    <span><i class="fas fa-signal"></i> ${game.difficulty}</span>
+                    <span><i class="fas fa-clock"></i> ${game.duration}</span>
+                </div>
+            </div>
+        </div>
+    `).join('');
+    
+    // إضافة رسوم متحركة
+    const gameCards = gamesGrid.querySelectorAll('.game-card');
+    gameCards.forEach((card, index) => {
+        card.style.animationDelay = `${index * 0.1}s`;
+    });
+}
+
+// بدء لعبة
+function startGame(gameId) {
+    console.log(`🎮 بدء اللعبة: ${gameId}`);
+    showNotification(`جاري تحميل لعبة ${gameId}...`, 'info');
+    
+    // محاكاة تحميل اللعبة
+    setTimeout(() => {
+        showGameModal(gameId);
+    }, 1000);
+}
+
+// عرض نافذة اللعبة
+function showGameModal(gameId) {
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.style.display = 'flex';
+    modal.innerHTML = `
+        <div class="modal-content" style="width: 90vw; height: 80vh;">
+            <div class="modal-header">
+                <h3>🎮 ${gameId}</h3>
+                <button class="close-btn" onclick="this.closest('.modal').remove()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div style="
+                    width: 100%;
+                    height: 100%;
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    border-radius: 15px;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    color: white;
+                    text-align: center;
+                ">
+                    <i class="fas fa-gamepad" style="font-size: 4rem; margin-bottom: 20px;"></i>
+                    <h3 style="margin-bottom: 15px;">اللعبة قيد التطوير</h3>
+                    <p style="margin-bottom: 30px;">سيتم إضافة هذه اللعبة قريباً</p>
+                    <button class="btn btn-primary" onclick="this.closest('.modal').remove()">
+                        العودة للألعاب
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+}
+
+// إضافة مستمعي الأحداث
+function addEventListeners() {
+    // مستمع النقر خارج النوافذ المنبثقة لإغلاقها
+    document.addEventListener('click', (e) => {
+        if (e.target.classList.contains('modal')) {
+            e.target.style.display = 'none';
         }
     });
-});
+    
+    // مستمع مفاتيح الاختصار
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            // إغلاق النوافذ المنبثقة
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                if (modal.style.display === 'flex') {
+                    modal.style.display = 'none';
+                }
+            });
+        }
+    });
+    
+    // مستمع تغيير حجم النافذة
+    window.addEventListener('resize', () => {
+        // تحديث التخطيط عند تغيير حجم النافذة
+        updateLayoutOnResize();
+    });
+}
 
-console.log('🚀 Enhanced Coptic Website Application loaded successfully!');
+// تحديث التخطيط عند تغيير حجم النافذة
+function updateLayoutOnResize() {
+    // يمكن إضافة منطق تحديث التخطيط هنا
+    console.log('📱 تحديث التخطيط للحجم الجديد');
+}
+
+// عرض رسالة ترحيب
+function showWelcomeMessage() {
+    setTimeout(() => {
+        showNotification('مرحباً بك في موقع الكنيسة القبطية الأرثوذكسية التفاعلي!', 'success');
+    }, 1000);
+}
+
+// عرض الإشعارات
+function showNotification(message, type = 'info') {
+    console.log(`📢 ${type.toUpperCase()}: ${message}`);
+    
+    // إنشاء عنصر الإشعار
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.style.cssText = `
+        position: fixed;
+        top: 100px;
+        right: 20px;
+        background: ${getNotificationColor(type)};
+        color: white;
+        padding: 15px 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        z-index: 10000;
+        max-width: 300px;
+        font-weight: 500;
+        animation: slideInRight 0.3s ease-out;
+        cursor: pointer;
+    `;
+    
+    notification.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <i class="fas ${getNotificationIcon(type)}"></i>
+            <span>${message}</span>
+        </div>
+    `;
+    
+    // إضافة للصفحة
+    document.body.appendChild(notification);
+    
+    // إزالة تلقائية بعد 4 ثوان
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.style.animation = 'slideOutRight 0.3s ease-in';
+            setTimeout(() => {
+                notification.remove();
+            }, 300);
+        }
+    }, 4000);
+    
+    // إزالة عند النقر
+    notification.addEventListener('click', () => {
+        notification.remove();
+    });
+    
+    // إضافة الرسوم المتحركة
+    if (!document.querySelector('#notification-styles')) {
+        const styles = document.createElement('style');
+        styles.id = 'notification-styles';
+        styles.textContent = `
+            @keyframes slideInRight {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOutRight {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(styles);
+    }
+}
+
+// الحصول على لون الإشعار
+function getNotificationColor(type) {
+    const colors = {
+        'success': '#10b981',
+        'error': '#ef4444',
+        'warning': '#f59e0b',
+        'info': '#3b82f6'
+    };
+    return colors[type] || colors.info;
+}
+
+// الحصول على أيقونة الإشعار
+function getNotificationIcon(type) {
+    const icons = {
+        'success': 'fa-check-circle',
+        'error': 'fa-exclamation-circle',
+        'warning': 'fa-exclamation-triangle',
+        'info': 'fa-info-circle'
+    };
+    return icons[type] || icons.info;
+}
+
+// تصدير الوظائف للاستخدام العام
+window.showSection = showSection;
+window.openVirtualTour = openVirtualTour;
+window.closeTourModal = closeTourModal;
+window.openCameraModal = openCameraModal;
+window.closeCameraModal = closeCameraModal;
+window.generateAvatar = generateAvatar;
+window.customizeAvatar = customizeAvatar;
+window.downloadAvatar = downloadAvatar;
+window.startGame = startGame;
+window.showNotification = showNotification;
+window.applyCustomization = applyCustomization;
+
+console.log('✅ تم تحميل جميع وظائف الموقع بنجاح!');
